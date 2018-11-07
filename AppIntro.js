@@ -11,12 +11,15 @@ import {
   Animated,
   Dimensions,
   Image,
-  Platform,
+  ImageBackground,
+  Platform
 } from 'react-native';
 import Swiper from 'react-native-swiper';
 import DoneButton from './components/DoneButton';
 import SkipButton from './components/SkipButton';
 import RenderDots from './components/Dots';
+import { FONT_HEADLINE6_BOLD, FONT_SUBTITLE2_REGULAR, COLOR_WHITE, FONT_SUBTITLE2_BOLD } from '../../app/styles';
+import { IMAGES } from '../../app/configs';
 
 const windowsWidth = Dimensions.get('window').width;
 const windowsHeight = Dimensions.get('window').height;
@@ -44,13 +47,24 @@ const defaulStyles = {
     padding: 15,
   },
   title: {
-    color: '#fff',
-    fontSize: 30,
+    color: COLOR_WHITE,
+    ...FONT_HEADLINE6_BOLD,
     paddingBottom: 20,
+    lineHeight: 23,
+    textAlign:'center'
   },
   description: {
-    color: '#fff',
-    fontSize: 20,
+    color: COLOR_WHITE,
+    ...FONT_SUBTITLE2_REGULAR,
+    textAlign:'center',
+    lineHeight: 16
+  },
+  desc: {
+    color: COLOR_WHITE,
+    ...FONT_SUBTITLE2_BOLD,
+    textAlign:'center',
+    lineHeight: 16,
+    textDecorationLine:'underline'
   },
   controllText: {
     color: '#fff',
@@ -58,9 +72,9 @@ const defaulStyles = {
     fontWeight: 'bold',
   },
   dotStyle: {
-    backgroundColor: 'rgba(255,255,255,.3)',
-    width: 13,
-    height: 13,
+    backgroundColor: '#FFFFFF',
+    width: 10,
+    height: 10,
     borderRadius: 7,
     marginLeft: 7,
     marginRight: 7,
@@ -68,14 +82,14 @@ const defaulStyles = {
     marginBottom: 7,
   },
   activeDotStyle: {
-    backgroundColor: '#fff',
+    backgroundColor: '#9A161B',
   },
   paginationContainer: {
     position: 'absolute',
     bottom: 25,
     left: 0,
     right: 0,
-    flexDirection: 'row',
+    flexDirection: 'row', 
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -214,10 +228,23 @@ export default class AppIntro extends Component {
           onSkipBtnClick={() => this.props.onSkipBtnClick(index)} /> :
           <View style={this.styles.btnContainer} />
         }
-        {this.props.showDots && RenderDots(index, total, {
-          ...this.props,
-          styles: this.styles
-        })}
+        {this.props.showDots &&
+           <View>
+            <View style={{ flexDirection:'row', alignSelf:'center', alignItems:'center', alignContent: 'center', marginBottom: 20}}>
+            { 
+              RenderDots(index, total, {
+                ...this.props,
+                styles: this.styles
+              })
+            }
+            </View>
+            <View style={{ marginBottom: 20 }}>
+            {
+              this.props.showCustomFooter ? this.props.renderCustomFooter :
+              <View style={this.styles.btnContainer}/>
+            }
+            </View>
+          </View>}
         {this.props.showDoneButton ? <DoneButton
             {...this.props}
             {...this.state}
@@ -233,19 +260,26 @@ export default class AppIntro extends Component {
 
   renderBasicSlidePage = (index, {
     title,
+    titlePress,
+    onPressDesc,
+    disabled,
     description,
+    describ,
     img,
     imgStyle,
     backgroundColor,
     fontColor,
+    fontFamily,
     level,
   }) => {
     const AnimatedStyle1 = this.getTransform(index, 10, level);
     const AnimatedStyle2 = this.getTransform(index, 0, level);
     const AnimatedStyle3 = this.getTransform(index, 15, level);
     const imgSource = (typeof img === 'string') ? {uri: img} : img;
+    
     const pageView = (
       <View style={[this.styles.slide, { backgroundColor }]} showsPagination={false} key={index}>
+        <ImageBackground style={{width: windowsWidth, height: windowsHeight}} source={IMAGES.background}>
         <Animated.View style={[this.styles.header, ...AnimatedStyle1.transform]}>
           <Image style={imgStyle} source={imgSource} />
         </Animated.View>
@@ -254,10 +288,16 @@ export default class AppIntro extends Component {
             <Text style={[this.styles.title, { color: fontColor }]}>{title}</Text>
           </Animated.View>
           <Animated.View style={AnimatedStyle3.transform}>
-            <Text style={[this.styles.description, { color: fontColor }]}>{description}</Text>
+            <Text style={[this.styles.description, { color: fontColor }]}>{description}
+            <Text onPress={onPressDesc}>
+            <Text style={[this.styles.desc, { color: fontColor }]}>{titlePress}</Text>
+            </Text>
+            <Text style={[this.styles.description, { color: fontColor }]}>{describ}</Text></Text>
           </Animated.View>
         </View>
+        </ImageBackground>
       </View>
+      
     );
     return pageView;
   }
